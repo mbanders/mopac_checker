@@ -24,13 +24,13 @@ def get_mopac_data(when):
         }
     payload = when.strftime('starttime=%m%%2F%d%%2F%Y+%H%%3A%M')
     r = requests.post(url, headers=headers, data=payload)
-    print(r.status_code)
-    print(r.headers)
-    if (r.status_code != 200):
+    try:
+        return r.json()
+    except:
+        print(r.status_code)
         print(r.headers)
-        sys.exit(1)
-    print(r.text)
-    return r.json()
+        print(r.text)
+        return {}
 
 def parse_mopac_data(data):
     result = {}
@@ -40,6 +40,9 @@ def parse_mopac_data(data):
 
 now = datetime.datetime.now()
 raw_data = get_mopac_data(now)
+if not raw_data:
+    print("Didn't get json data, quitting...")
+    sys.exit(1)
 nice_data= parse_mopac_data(raw_data)
 nice_data['date'] = now.strftime("%Y-%m-%d")
 nice_data['time'] = now.strftime("%H:%M")
