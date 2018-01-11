@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import datetime
 import json
 import random
@@ -10,15 +11,20 @@ import requests
 
 
 def printd(data):
+    '''Print a dictionary in a nice human-readable way.'''
     print(json.dumps(data, separators=(',', ': '), sort_keys=True, indent=4))
 
 def get_mopac_data(when):
+    '''Get raw data from Mopac website. Should be in JSON format.'''
     url = 'https://mopac-fare.mroms.us/HistoricalFare/ViewHistoricalFare'
+    USER_AGENTS = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+                   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7',
+                   'Mozilla/5.0 (iPhone; CPU iPhone OS 11_2_2 like Mac OS X) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0 Mobile/15C202 Safari/604.1']
     headers = {
         'Origin': 'https://www.mobilityauthority.com',
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'en-US,en;q=0.8',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        'User-Agent': random.choice(USER_AGENTS),
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         'Accept': 'application/json, text/javascript, */*; q=0.01',
         'Referer': 'https://www.mobilityauthority.com/pay-your-toll/current-mopac-rates',
@@ -35,22 +41,31 @@ def get_mopac_data(when):
         return {}
 
 def parse_mopac_data(data):
+    '''Grab just the data we care about.'''
     result = {}
     for e in data:
-        result[e.get('tollingPointName')] = e.get('tripRate')
+        name = e.get('tollingPointName').replace('LP1X ','')
+        result[name] = e.get('tripRate')
     return result
 
-def randsleep(seconds):
+def randsleep(seconds=0):
+    '''Use this optionally to "fuzzy" when this runs.'''
     time.sleep(random.randint(0,seconds))
     return None
 
-now = datetime.datetime.now()
-raw_data = get_mopac_data(now)
-if not raw_data:
-    print("Didn't get json data, quitting...")
-    sys.exit(1)
-nice_data= parse_mopac_data(raw_data)
-nice_data['date'] = now.strftime("%Y-%m-%d")
-nice_data['time'] = now.strftime("%H:%M")
-nice_data['day_of_week'] = now.strftime("%a")
-printd(nice_data)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("sec", help="Randomly sleep between 0 and this many seconds", type=int, default=0)
+    args = parser.parse_args()
+    randsleep(args.sec)
+    now = datetime.datetime.now()
+    raw_data = get_mopac_data(now)
+    if not raw_data:
+        print("Didn't get json data, quitting...")
+        sys.exit(1)
+    nice_data= parse_mopac_data(raw_data)
+    # Add information
+    nice_data['date'] = now.strftime("%Y-%m-%d")
+    nice_data['time'] = now.strftime("%H:%M")
+    nice_data['day_of_week'] = now.strftime("%a")
+    printd(nice_data)
