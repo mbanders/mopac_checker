@@ -2,7 +2,9 @@
 
 import datetime
 import json
+import random
 import sys
+import time
 
 import requests
 
@@ -37,6 +39,10 @@ def parse_mopac_data(data):
     for e in data:
         result[e.get('tollingPointName')] = e.get('tripRate')
     return result
+
+def randsleep(seconds):
+    time.sleep(random.randint(0,seconds))
+    return None
 
 now = datetime.datetime.now()
 raw_data = get_mopac_data(now)
