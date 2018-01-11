@@ -7,6 +7,7 @@ import random
 import sys
 import time
 
+import pytz
 import requests
 
 
@@ -73,7 +74,7 @@ if __name__ == '__main__':
     parser.add_argument("-o", "--out", help="Append data to this csv file", type=str, default="result.csv")
     args = parser.parse_args()
     randsleep(args.sec)
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(pytz.timezone('America/Chicago'))
     raw_data = get_mopac_data(now)
     if not raw_data:
         print("Didn't get json data, quitting...")
