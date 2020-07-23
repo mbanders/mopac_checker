@@ -61,11 +61,6 @@ def parse_mopac_data(data):
         result[name] = e.get('tripRate')
     return result
 
-def randsleep(seconds=0):
-    '''Use this optionally to "fuzzy" when this runs.'''
-    time.sleep(random.randint(0,seconds))
-    return None
-
 def append_csv(data, name='result.csv'):
     if not name:
         return None
@@ -81,18 +76,17 @@ def append_csv(data, name='result.csv'):
     return None
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--sec", help="Randomly sleep between 0 and this many seconds", type=int, default=0)
+    parser = argparse.ArgumentParser(description='Get current Mopac express lane prices')
     parser.add_argument("-o", "--out", help="Append data to csv file", type=str, default="")
     args = parser.parse_args()
-    randsleep(args.sec)
+    # Get current Central Time
     now = datetime.datetime.now(pytz.timezone('America/Chicago'))
     raw_data = get_mopac_data(now)
     if not raw_data:
         print("Didn't get json data, quitting...")
         sys.exit(1)
     nice_data= parse_mopac_data(raw_data)
-    # Add information
+    # Add useful information
     nice_data['date'] = now.strftime("%Y-%m-%d")
     nice_data['time'] = now.strftime("%H:%M")
     nice_data['day_of_week'] = now.strftime("%a")
