@@ -69,7 +69,7 @@ def append_csv(data, name='result.csv'):
     print("Wrote to %s" % name)
     return None
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--sec", help="Randomly sleep between 0 and this many seconds", type=int, default=0)
     parser.add_argument("-o", "--out", help="Append data to this csv file", type=str, default="result.csv")
@@ -87,3 +87,6 @@ if __name__ == '__main__':
     nice_data['day_of_week'] = now.strftime("%a")
     append_csv(nice_data, args.out)
     printd(nice_data)
+
+if __name__ == '__main__':
+    main()
