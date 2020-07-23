@@ -13,5 +13,9 @@ setup(
     package_data={"": ["*.txt", "*.json", "*.cfg", "*.md"]},
     include_package_data=True,
     install_requires=['requests', 'pytz'],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License"
+        ],
     entry_points={"console_scripts": ["mopac=mopac.mopac:main"],},
 )
