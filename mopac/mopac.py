@@ -21,6 +21,15 @@ def printd(data):
     '''Print a dictionary in a nice human-readable way.'''
     print(json.dumps(data, separators=(',', ': '), sort_keys=True, indent=4))
 
+def print_mopac(data):
+    '''Print a dictionary of mopac price data'''
+    print('{date}-{time} {day_of_week}'.format(**data))
+    data.pop('date', None)
+    data.pop('day_of_week', None)
+    data.pop('time', None)
+    for k in sorted(data):
+        print("%21s: %s" % (k, data[k]))
+
 def get_mopac_data(when):
     '''Get raw data from Mopac website. Should be in JSON format.'''
     url = 'https://mopac-fare.mroms.us/HistoricalFare/ViewHistoricalFare'
@@ -58,6 +67,8 @@ def randsleep(seconds=0):
     return None
 
 def append_csv(data, name='result.csv'):
+    if not name:
+        return None
     keys = ['date','time','day_of_week',
             'NB: 2222 to Parmer','NB: CVZ to 183','NB: CVZ to Parmer',
             'SB: 2222 to 5th/CVZ','SB: Parmer to 2222','SB: Parmer to 5th/CVZ']
@@ -72,7 +83,7 @@ def append_csv(data, name='result.csv'):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--sec", help="Randomly sleep between 0 and this many seconds", type=int, default=0)
-    parser.add_argument("-o", "--out", help="Append data to this csv file", type=str, default="result.csv")
+    parser.add_argument("-o", "--out", help="Append data to csv file", type=str, default="")
     args = parser.parse_args()
     randsleep(args.sec)
     now = datetime.datetime.now(pytz.timezone('America/Chicago'))
@@ -86,7 +97,8 @@ def main():
     nice_data['time'] = now.strftime("%H:%M")
     nice_data['day_of_week'] = now.strftime("%a")
     append_csv(nice_data, args.out)
-    printd(nice_data)
+    #printd(nice_data)
+    print_mopac(nice_data)
 
 if __name__ == '__main__':
     main()
